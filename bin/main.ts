@@ -1,12 +1,13 @@
 #!/usr/bin/env bun
 import { Cli, notFoundPlugin } from "clerc";
+import { version } from "../package.json";
 import { fixShebang } from "../src/index.ts";
 
 Cli()
 	.name("bao")
 	.scriptName("bao")
 	.description("Fix shebang lines in globally installed Bun scripts")
-	.version("0.1.0")
+	.version(version)
 	.use(notFoundPlugin())
 	.command("fix", "Fix shebang lines from node to bun", {
 		flags: {
