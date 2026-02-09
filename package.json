@@ -8,9 +8,8 @@
 		"@typescript/native-preview": "^7.0.0-dev.20260204.1",
 		"typescript": "^5.9.3"
 	},
-	"bin":{
-		"myapptest": "./bin/main.ts"
-		
+	"bin": {
+		"bao": "./bin/main.ts"
 	},
 	"scripts": {
 		"dev": "bun --watch run.ts",
