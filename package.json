@@ -14,8 +14,8 @@
 	"scripts": {
 		"dev": "bun --watch run.ts",
 		"test": "bun test",
-		"check": "biome check --write src/ && bun run typecheck",
-		"format": "biome format --write src/",
+		"check": "biome check --write bin/ src/ && bun run typecheck",
+		"format": "biome format --write bin/ src/ tests/",
 		"typecheck": "tsgo --noEmit",
 		"build": "bun build run.ts --outdir ./dist"
 	}

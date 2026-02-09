@@ -13,7 +13,6 @@ const BUN_SHEBANG = "#!/usr/bin/env bun";
 async function* discoverFiles(
 	dir: string,
 	options?: FixOptions,
-	verbose?: boolean,
 ): AsyncGenerator<string> {
 	const entries = await readdir(dir, { withFileTypes: true });
 
@@ -23,7 +22,7 @@ async function* discoverFiles(
 		if (entry.isFile()) {
 			yield fullPath;
 		} else if (entry.isDirectory() && options?.recursive) {
-			yield* discoverFiles(fullPath, options, verbose);
+			yield* discoverFiles(fullPath, options);
 		}
 	}
 }
@@ -82,13 +81,14 @@ export async function fixShebang(
 ): Promise<void> {
 	const dir = targetDir
 		? normalize(targetDir)
-		: normalize(join(process.env["HOME"] || "", ".bun", "bin"));
+		: // biome-ignore lint/complexity/useLiteralKeys: <TypeScript cannot infer properly here>
+			normalize(join(Bun.env["HOME"] || "", ".bun", "bin"));
 
 	if (!existsSync(dir)) {
 		throw new Error(`Directory not found: ${dir}`);
 	}
 
-	for await (const filePath of discoverFiles(dir, options, options?.verbose)) {
+	for await (const filePath of discoverFiles(dir, options)) {
 		await fixFileShebang(filePath, options?.verbose);
 	}
 }
