@@ -18,5 +18,8 @@
 		"format": "biome format --write bin/ src/ tests/",
 		"typecheck": "tsgo --noEmit",
 		"build": "bun build run.ts --outdir ./dist"
+	},
+	"dependencies": {
+		"clerc": "^1.2.1"
 	}
 }

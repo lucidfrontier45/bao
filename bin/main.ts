@@ -1,26 +1,40 @@
 #!/usr/bin/env bun
+import { Cli, notFoundPlugin } from "clerc";
 import { fixShebang } from "../src/index.ts";
 
-const args = process.argv.slice(2);
-
-if (args[0] === "fix") {
-	const recursiveFlag = args.includes("-r") || args.includes("--recursive");
-	const verboseFlag = args.includes("-v") || args.includes("--verbose");
-	const targetDir = args.find((arg) => !arg.startsWith("-") && arg !== "fix");
-
-	try {
-		await fixShebang(targetDir, {
-			recursive: recursiveFlag,
-			verbose: verboseFlag,
-		});
-	} catch (error) {
-		if (error instanceof Error) {
-			console.error(`Error: ${error.message}`);
-			process.exit(1);
+Cli()
+	.name("bao")
+	.scriptName("bao")
+	.description("Fix shebang lines in globally installed Bun scripts")
+	.version("0.1.0")
+	.use(notFoundPlugin())
+	.command("fix", "Fix shebang lines from node to bun", {
+		flags: {
+			recursive: {
+				type: Boolean,
+				short: "r",
+				description: "Process files recursively in subdirectories",
+			},
+			verbose: {
+				type: Boolean,
+				short: "v",
+				description: "Enable verbose output",
+			},
+		},
+		parameters: ["[directory]"],
+	})
+	.on("fix", async (ctx) => {
+		try {
+			await fixShebang(ctx.parameters.directory, {
+				recursive: ctx.flags.recursive,
+				verbose: ctx.flags.verbose,
+			});
+		} catch (error) {
+			if (error instanceof Error) {
+				console.error(`Error: ${error.message}`);
+				process.exit(1);
+			}
+			throw error;
 		}
-		throw error;
-	}
-} else {
-	console.error("Error: No subcommand provided. Available subcommands: fix");
-	process.exit(1);
-}
+	})
+	.parse();
