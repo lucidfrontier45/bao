@@ -8,15 +8,14 @@
 		"@typescript/native-preview": "^7.0.0-dev.20260204.1",
 		"typescript": "^5.9.3"
 	},
-	"bin":{
-		"myapptest": "./bin/main.ts"
-		
+	"bin": {
+		"bao": "./bin/main.ts"
 	},
 	"scripts": {
 		"dev": "bun --watch run.ts",
 		"test": "bun test",
-		"check": "biome check --write src/ && bun run typecheck",
-		"format": "biome format --write src/",
+		"check": "biome check --write bin/ src/ && bun run typecheck",
+		"format": "biome format --write bin/ src/ tests/",
 		"typecheck": "tsgo --noEmit",
 		"build": "bun build run.ts --outdir ./dist"
 	}
