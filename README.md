@@ -1,6 +1,6 @@
-# bao
+<img src="./logo.png" alt="bao logo" width="500" />
 
-A small tool to fix shebang of scripts added by `bun add -g`.
+`bao` is small tool to fix shebang of scripts added by `bun add -g`.
 
 ## Usage
 
