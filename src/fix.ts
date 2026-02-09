@@ -4,6 +4,7 @@ import { join, normalize } from "node:path";
 
 export interface FixOptions {
 	recursive?: boolean;
+	verbose?: boolean;
 }
 
 const NODE_SHEBANG = "#!/usr/bin/env node";
@@ -12,6 +13,7 @@ const BUN_SHEBANG = "#!/usr/bin/env bun";
 async function* discoverFiles(
 	dir: string,
 	options?: FixOptions,
+	verbose?: boolean,
 ): AsyncGenerator<string> {
 	const entries = await readdir(dir, { withFileTypes: true });
 
@@ -21,22 +23,36 @@ async function* discoverFiles(
 		if (entry.isFile()) {
 			yield fullPath;
 		} else if (entry.isDirectory() && options?.recursive) {
-			yield* discoverFiles(fullPath, options);
+			yield* discoverFiles(fullPath, options, verbose);
 		}
 	}
 }
 
-async function fixFileShebang(filePath: string): Promise<boolean> {
+async function fixFileShebang(
+	filePath: string,
+	verbose?: boolean,
+): Promise<boolean> {
 	const file = Bun.file(filePath);
 	const content = await file.text();
 	const lines = content.split("\n");
 
+	if (verbose) {
+		console.log(`Opening: ${filePath}`);
+	}
+
 	if (lines[0] !== NODE_SHEBANG) {
+		if (verbose) {
+			console.log(`Skipped: ${filePath} (no matching shebang)`);
+		}
 		return false;
 	}
 
 	lines[0] = BUN_SHEBANG;
 	await Bun.write(filePath, lines.join("\n"));
+
+	console.log(`Modified: ${filePath}`);
+	console.log(`Changed shebang from ${NODE_SHEBANG} to ${BUN_SHEBANG}`);
+
 	return true;
 }
 
@@ -72,7 +88,7 @@ export async function fixShebang(
 		throw new Error(`Directory not found: ${dir}`);
 	}
 
-	for await (const filePath of discoverFiles(dir, options)) {
-		await fixFileShebang(filePath);
+	for await (const filePath of discoverFiles(dir, options, options?.verbose)) {
+		await fixFileShebang(filePath, options?.verbose);
 	}
 }
