@@ -18,7 +18,20 @@ bao fix /path/to/scripts
 # Fix scripts recursively (including subdirectories)
 bao fix -r /path/to/scripts
 bao fix --recursive /path/to/scripts
+
+# Fix scripts with verbose output (shows file operations)
+bao fix -v
+bao fix --verbose
+
+# Combine verbose with recursive
+bao fix -v -r /path/to/scripts
 ```
+
+**Verbose Mode**: When using `-v` or `--verbose`, the tool shows:
+- "Opening: <file>" - each file being examined
+- "Skipped: <file> (reason)" - files that weren't modified
+- "Modified: <file>" - files that were changed (always shown, even without verbose)
+- "Changed shebang from #!/usr/bin/env node to #!/usr/bin/env bun" - the specific change made
 
 ## Environment Setup
 
