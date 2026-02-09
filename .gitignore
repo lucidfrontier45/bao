@@ -34,4 +34,4 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 .DS_Store
 
 # ignore bun lock file for library projects, include it for applications
-/bun.lock
+#/bun.lock
