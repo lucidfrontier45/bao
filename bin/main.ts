@@ -20,4 +20,7 @@ if (args[0] === "fix") {
 		}
 		throw error;
 	}
+} else {
+	console.error("Error: No subcommand provided. Available subcommands: fix");
+	process.exit(1);
 }
