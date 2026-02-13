@@ -15,7 +15,7 @@ The `fix` command currently uses `readdir` with `isFile()` to discover files. Th
 
 ## Decisions
 
-1. **Use `entry.isSymbolicLink()` + `isFile()` on lstat result**: Check if entry is a symlink, then use `lstat` to check if the link target is a file. This allows us to detect symlinks while avoiding directories.
+1. **Use `entry.isSymbolicLink()` + `isFile()` on stat result**: Check if entry is a symlink, then use `stat` to check if the link target is a file. This allows us to detect symlinks while avoiding directories.
 
    Alternative considered: Use `followLinkSymlinks` option in `readdir` (available in Node 20+), but Bun's implementation may differ.
 
