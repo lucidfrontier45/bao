@@ -14,6 +14,7 @@ const BUN_SHEBANG = "#!/usr/bin/env bun";
 async function resolveSymlink(
 	entry: Dirent,
 	dir: string,
+	rootDir: string,
 	options?: FixOptions,
 ): Promise<string | null> {
 	const fullPath = join(dir, entry.name);
@@ -31,7 +32,7 @@ async function resolveSymlink(
 	const targetPath = await realpath(fullPath);
 
 	if (options?.skipOutside) {
-		const relPath = relative(dir, targetPath);
+		const relPath = relative(rootDir, targetPath);
 		if (relPath.startsWith("..")) {
 			return null;
 		}
@@ -42,6 +43,7 @@ async function resolveSymlink(
 
 async function* discoverFiles(
 	dir: string,
+	rootDir: string,
 	options?: FixOptions,
 ): AsyncGenerator<string> {
 	const entries = await readdir(dir, { withFileTypes: true });
@@ -52,12 +54,12 @@ async function* discoverFiles(
 		if (entry.isFile()) {
 			yield fullPath;
 		} else if (entry.isSymbolicLink()) {
-			const targetPath = await resolveSymlink(entry, dir, options);
+			const targetPath = await resolveSymlink(entry, dir, rootDir, options);
 			if (targetPath) {
 				yield targetPath;
 			}
 		} else if (entry.isDirectory() && options?.recursive) {
-			yield* discoverFiles(fullPath, options);
+			yield* discoverFiles(fullPath, rootDir, options);
 		}
 	}
 }
@@ -125,7 +127,7 @@ export async function fixShebang(
 
 	const processedPaths = new Set<string>();
 
-	for await (const filePath of discoverFiles(dir, options)) {
+	for await (const filePath of discoverFiles(dir, dir, options)) {
 		const realPath = await realpath(filePath);
 
 		if (processedPaths.has(realPath)) {
