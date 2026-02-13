@@ -25,6 +25,7 @@
 		"bao": "./bin/main.ts"
 	},
 	"scripts": {
+		"sync": "bun i --frozen-lockfile",
 		"dev": "bun --watch run.ts",
 		"test": "bun test",
 		"check": "biome check --write bin/ src/ && bun run typecheck",

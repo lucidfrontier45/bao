@@ -1,0 +1,10 @@
+repos:
+    - repo: local
+      hooks:
+          - id: format
+            name: Format code project settings
+            language: system
+            entry: bun run format
+            types: [javascript, jsx, ts, tsx]
+            pass_filenames: false
+            always_run: true
