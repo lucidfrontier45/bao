@@ -25,6 +25,9 @@ bao fix --verbose
 
 # Combine verbose with recursive
 bao fix -v -r /path/to/scripts
+
+# Skip symbolic links pointing outside the target directory
+bao fix --skip-outside /path/to/scripts
 ```
 
 **Verbose Mode**: When using `-v` or `--verbose`, the tool shows:
@@ -32,6 +35,14 @@ bao fix -v -r /path/to/scripts
 - "Skipped: <file> (reason)" - files that weren't modified
 - "Modified: <file>" - files that were changed (always shown, even without verbose)
 - "Changed shebang from #!/usr/bin/env node to #!/usr/bin/env bun" - the specific change made
+
+## Symbolic Links
+
+By default, `bao fix` follows symbolic links and applies shebang fixes to the target files. This is useful when `bun add -g` creates symlinks in `node_modules/.bin/`.
+
+**Broken symlinks**: Symlinks with non-existent targets are automatically skipped.
+
+**Outside symlinks**: By default, symlinks pointing outside the target directory are followed and their targets are modified. Use `--skip-outside` to skip these.
 
 ## Environment Setup
 
