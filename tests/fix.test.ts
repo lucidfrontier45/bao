@@ -13,6 +13,7 @@ import { fixShebang } from "../src/index.ts";
 
 describe("fixShebang", () => {
 	let testDir: string;
+	let outsideDir: string | null = null;
 
 	beforeEach(() => {
 		testDir = mkdtempSync(join(tmpdir(), "bao-test-"));
@@ -20,6 +21,9 @@ describe("fixShebang", () => {
 
 	afterEach(() => {
 		rmSync(testDir, { recursive: true, force: true });
+		if (outsideDir) {
+			rmSync(outsideDir, { recursive: true, force: true });
+		}
 	});
 
 	test("should replace node shebang with bun shebang", async () => {
@@ -129,7 +133,7 @@ describe("fixShebang", () => {
 	});
 
 	test("should follow symlinks pointing outside directory by default", async () => {
-		const outsideDir = mkdtempSync(join(tmpdir(), "bao-outside-"));
+		outsideDir = mkdtempSync(join(tmpdir(), "bao-outside-"));
 		const targetFile = join(outsideDir, "outside.js");
 		writeFileSync(targetFile, "#!/usr/bin/env node\nconsole.log('test');\n", {
 			mode: 0o755,
@@ -142,12 +146,10 @@ describe("fixShebang", () => {
 
 		const content = readFileSync(targetFile, "utf-8");
 		expect(content.startsWith("#!/usr/bin/env bun\n")).toBe(true);
-
-		rmSync(outsideDir, { recursive: true, force: true });
 	});
 
 	test("should skip outside symlinks when skipOutside flag is set", async () => {
-		const outsideDir = mkdtempSync(join(tmpdir(), "bao-outside-"));
+		outsideDir = mkdtempSync(join(tmpdir(), "bao-outside-"));
 		const targetFile = join(outsideDir, "outside.js");
 		writeFileSync(targetFile, "#!/usr/bin/env node\nconsole.log('test');\n", {
 			mode: 0o755,
@@ -160,8 +162,6 @@ describe("fixShebang", () => {
 
 		const content = readFileSync(targetFile, "utf-8");
 		expect(content.startsWith("#!/usr/bin/env node\n")).toBe(true);
-
-		rmSync(outsideDir, { recursive: true, force: true });
 	});
 
 	test("should not process same file twice when multiple symlinks point to it", async () => {
