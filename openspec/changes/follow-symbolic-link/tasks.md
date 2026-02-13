@@ -1,8 +1,8 @@
 ## 1. Modify file discovery to detect and follow symlinks
 
-- [x] 1.1 Import `lstat` from `node:fs/promises` for symlink detection
+- [x] 1.1 Import `stat` from `node:fs/promises` for symlink target verification
 - [x] 1.2 Update `discoverFiles` function to check `entry.isSymbolicLink()`
-- [x] 1.3 Add logic to verify symlink target exists and is a file using `lstat`
+- [x] 1.3 Add logic to verify symlink target exists and is a file using `stat`
 - [x] 1.4 Add logic to resolve symlink target path
 - [x] 1.5 Default to following all valid symlinks (no option needed)
 
