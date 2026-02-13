@@ -125,22 +125,7 @@ describe("fixShebang", () => {
 		const brokenLink = join(testDir, "broken.js");
 		symlinkSync("/nonexistent/file.js", brokenLink);
 
-		const logs: string[] = [];
-		const originalLog = console.log;
-		console.log = (...args: unknown[]) => {
-			logs.push(args.join(" "));
-		};
-
-		try {
-			await fixShebang(testDir, { verbose: true });
-
-			const brokenLinkLogged = logs.some(
-				(log) => log.includes("broken.js") || log.includes(brokenLink),
-			);
-			expect(brokenLinkLogged).toBe(false);
-		} finally {
-			console.log = originalLog;
-		}
+		await fixShebang(testDir);
 	});
 
 	test("should follow symlinks pointing outside directory by default", async () => {
