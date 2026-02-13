@@ -21,6 +21,10 @@ Cli()
 				short: "v",
 				description: "Enable verbose output",
 			},
+			skipOutside: {
+				type: Boolean,
+				description: "Skip symlinks that point outside the target directory",
+			},
 		},
 		parameters: ["[directory]"],
 	})
@@ -29,6 +33,7 @@ Cli()
 			await fixShebang(ctx.parameters.directory, {
 				recursive: ctx.flags.recursive,
 				verbose: ctx.flags.verbose,
+				skipOutside: ctx.flags.skipOutside,
 			});
 		} catch (error) {
 			if (error instanceof Error) {

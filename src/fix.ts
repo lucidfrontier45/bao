@@ -1,14 +1,44 @@
-import { existsSync } from "node:fs";
-import { readdir } from "node:fs/promises";
-import { join, normalize } from "node:path";
+import { type Dirent, existsSync } from "node:fs";
+import { readdir, realpath, stat } from "node:fs/promises";
+import { join, normalize, relative } from "node:path";
 
 export interface FixOptions {
 	recursive?: boolean;
 	verbose?: boolean;
+	skipOutside?: boolean;
 }
 
 const NODE_SHEBANG = "#!/usr/bin/env node";
 const BUN_SHEBANG = "#!/usr/bin/env bun";
+
+async function resolveSymlink(
+	entry: Dirent,
+	dir: string,
+	options?: FixOptions,
+): Promise<string | null> {
+	const fullPath = join(dir, entry.name);
+
+	let targetStats: Awaited<ReturnType<typeof stat>> | undefined;
+	try {
+		targetStats = await stat(fullPath);
+	} catch {
+		return null;
+	}
+	if (!targetStats.isFile()) {
+		return null;
+	}
+
+	const targetPath = await realpath(fullPath);
+
+	if (options?.skipOutside) {
+		const relPath = relative(dir, targetPath);
+		if (relPath.startsWith("..")) {
+			return null;
+		}
+	}
+
+	return targetPath;
+}
 
 async function* discoverFiles(
 	dir: string,
@@ -21,6 +51,11 @@ async function* discoverFiles(
 
 		if (entry.isFile()) {
 			yield fullPath;
+		} else if (entry.isSymbolicLink()) {
+			const targetPath = await resolveSymlink(entry, dir, options);
+			if (targetPath) {
+				yield targetPath;
+			}
 		} else if (entry.isDirectory() && options?.recursive) {
 			yield* discoverFiles(fullPath, options);
 		}
@@ -88,7 +123,16 @@ export async function fixShebang(
 		throw new Error(`Directory not found: ${dir}`);
 	}
 
+	const processedPaths = new Set<string>();
+
 	for await (const filePath of discoverFiles(dir, options)) {
+		const realPath = await realpath(filePath);
+
+		if (processedPaths.has(realPath)) {
+			continue;
+		}
+		processedPaths.add(realPath);
+
 		await fixFileShebang(filePath, options?.verbose);
 	}
 }
